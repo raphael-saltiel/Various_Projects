@@ -181,7 +181,7 @@ questions = [
     },
     {
         "question": "What is the purpose of the `$exists` operator in MongoDB queries?",
-        "options": ["To check if a field is indexed", "To check if a field exists in a document", "To check if a field exists in a document", "To check if a document exists in a collection", "To check if a database exists"],
+        "options": ["To check if a field is indexed", "To check if a field exists in a document", "To check if a document exists in a collection", "To check if a database exists"],
         "correct_answer": "To check if a field exists in a document"
     },
     {
@@ -372,6 +372,20 @@ def display_question(question, question_number, correct_count):
     selected_answer = st.radio("Choose an answer:", question["options"])
     return selected_answer
 
+# Function to display PDF
+def displayPDF(file):
+    # Read file as bytes:
+    bytes_data = file.read()
+
+    # Convert to base64:
+    base64_pdf = base64.b64encode(bytes_data).decode('utf-8')
+
+    # Embed PDF in HTML:
+    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="700" height="1000" type="application/pdf"></iframe>'
+
+    # Display file
+    st.markdown(pdf_display, unsafe_allow_html=True)
+
 def main():
     st.title("NoSQL Exam Practice")
 
@@ -385,77 +399,70 @@ def main():
         random.shuffle(st.session_state.questions_order)
         st.session_state.results = []  # Store results for the summary
 
-    # Create two columns
-    col1, col2 = st.columns([3, 1])
+    # Sidebar for course PDF and settings
+    with st.sidebar:
+        st.header("Course Materials")
+        pdf_file = st.file_uploader("Upload Course PDF", type=["pdf"])
+        if pdf_file is not None:
+            displayPDF(pdf_file)
 
-    # Column 1: Quiz questions and settings
+    # Main area for the quiz
+    col1, col2 = st.columns([3, 1]) #Adjust columns width
     with col1:
-        num_questions = st.number_input("Enter the number of questions for this quiz:", min_value=1, max_value=len(questions), value=st.session_state.num_questions, step=1)
+      num_questions = st.number_input("Enter the number of questions for this quiz:", min_value=1, max_value=len(questions), value=st.session_state.num_questions, step=1)
 
-        # Max Questions button
-        if st.button("Max Questions"):
-            num_questions = len(questions)  # Set to the maximum number of questions
+      # Max Questions button
+      if st.button("Max Questions"):
+          num_questions = len(questions)  # Set to the maximum number of questions
 
-        st.session_state.num_questions = int(num_questions)
+      st.session_state.num_questions = int(num_questions)
 
-        question_index = st.session_state.question_index
-        questions_order = st.session_state.questions_order
-        correct_count = st.session_state.score
+      question_index = st.session_state.question_index
+      questions_order = st.session_state.questions_order
+      correct_count = st.session_state.score
 
-        if question_index < st.session_state.num_questions:
-            question = questions[questions_order[question_index]]
-            selected_answer = display_question(question, question_index, correct_count)
+      if question_index < st.session_state.num_questions:
+          question = questions[questions_order[question_index]]
+          selected_answer = display_question(question, question_index, correct_count)
 
-            if st.button("Submit"):
-                if selected_answer:
-                    is_correct = check_answer(question, selected_answer)
-                    if is_correct:
-                        st.success("Correct!")
-                        st.session_state.score += 1
-                        st.session_state.results.append({"question": question["question"], "correct": True, "correct_answer": question["correct_answer"], "selected_answer": selected_answer})
-                    else:
-                        st.error(f"Incorrect. The correct answer was: {question['correct_answer']}")
-                        st.session_state.results.append({"question": question["question"], "correct": False, "correct_answer": question["correct_answer"], "selected_answer": selected_answer})
+          if st.button("Submit"):
+              if selected_answer:
+                  is_correct = check_answer(question, selected_answer)
+                  if is_correct:
+                      st.success("Correct!")
+                      st.session_state.score += 1
+                      st.session_state.results.append({"question": question["question"], "correct": True, "correct_answer": question["correct_answer"], "selected_answer": selected_answer})
+                  else:
+                      st.error(f"Incorrect. The correct answer was: {question['correct_answer']}")
+                      st.session_state.results.append({"question": question["question"], "correct": False, "correct_answer": question["correct_answer"], "selected_answer": selected_answer})
 
-                    st.session_state.question_index += 1
-                    st.rerun()  # Rerun to display the next question
-                else:
-                    st.warning("Please select an answer.")
-        else:
-            st.header("Quiz Complete!")
-            st.write(f"Your final score: {st.session_state.score} / {st.session_state.num_questions}")
+                  st.session_state.question_index += 1
+                  st.rerun()  # Rerun to display the next question
+              else:
+                  st.warning("Please select an answer.")
+      else:
+          st.header("Quiz Complete!")
+          st.write(f"Your final score: {st.session_state.score} / {st.session_state.num_questions}")
 
-            # Display Summary
-            st.subheader("Review")
-            for result in st.session_state.results:
-                st.write(f"**Question:** {result['question']}")
-                st.write(f"  * Your Answer: {result['selected_answer']}")
-                st.write(f"  * Correct Answer: {result['correct_answer']}")
-                if result['correct']:
-                    st.success("   * Correct!")
-                else:
-                    st.error("   * Incorrect")
+          # Display Summary
+          st.subheader("Review")
+          for result in st.session_state.results:
+              st.write(f"**Question:** {result['question']}")
+              st.write(f"  * Your Answer: {result['selected_answer']}")
+              st.write(f"  * Correct Answer: {result['correct_answer']}")
+              if result['correct']:
+                  st.success("   * Correct!")
+              else:
+                  st.error("   * Incorrect")
 
-            if st.button("Restart Quiz"):
-                st.session_state.question_index = 0
-                st.session_state.score = 0
-                st.session_state.questions_order = list(range(len(questions)))
-                random.shuffle(st.session_state.questions_order)
-                st.session_state.results = [] #Clears the results
-                st.rerun()
-
-    # Column 2: PDF content in a scrollable format
-    with col2:
-        st.header("Course Content")
-        # Read the PDF file
-        try:
-            with open("cours.pdf", "rb") as file:
-                pdf_data = file.read()
-                pdf_base64 = base64.b64encode(pdf_data).decode("utf-8")
-                pdf_display = f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="400" height="800" style="overflow: auto;"></iframe>'
-                st.markdown(pdf_display, unsafe_allow_html=True)
-        except FileNotFoundError:
-            st.error("The 'cours.pdf' file was not found.  Please make sure it is in the same directory as the script.")
+          if st.button("Restart Quiz"):
+              st.session_state.question_index = 0
+              st.session_state.score = 0
+              st.session_state.questions_order = list(range(len(questions)))
+              random.shuffle(st.session_state.questions_order)
+              st.session_state.results = [] #Clears the results
+              st.rerun()
 
 if __name__ == "__main__":
     main()
+
