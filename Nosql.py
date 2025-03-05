@@ -1,5 +1,6 @@
 import streamlit as st
 import random
+import base64
 
 # Define your questions and answers
 questions = [
@@ -180,7 +181,7 @@ questions = [
     },
     {
         "question": "What is the purpose of the `$exists` operator in MongoDB queries?",
-        "options": ["To check if a field is indexed", "To check if a field exists in a document", "To check if a document exists in a collection", "To check if a database exists"],
+        "options": ["To check if a field is indexed", "To check if a field exists in a document", "To check if a field exists in a document", "To check if a document exists in a collection", "To check if a database exists"],
         "correct_answer": "To check if a field exists in a document"
     },
     {
@@ -278,7 +279,6 @@ questions = [
         "options": ["A rule that must be followed when querying the database", "A rule that must be followed when creating a new node or property", "A command to import CSV data", "A command to export data"],
         "correct_answer": "A rule that must be followed when creating a new node or property"
     },
-
     # Code Questions Start Here
     {
         "question": "Given a MongoDB collection `users`, which query would find all users with age greater than 25?",
@@ -375,6 +375,7 @@ def display_question(question, question_number, correct_count):
 def main():
     st.title("NoSQL Exam Practice")
 
+    # Initialize session state
     if 'initialized' not in st.session_state:
         st.session_state.initialized = True
         st.session_state.num_questions = 10  # Default number of questions
@@ -384,54 +385,77 @@ def main():
         random.shuffle(st.session_state.questions_order)
         st.session_state.results = []  # Store results for the summary
 
-    num_questions = st.number_input("Enter the number of questions for this quiz:", min_value=1, max_value=len(questions), value=st.session_state.num_questions, step=1)
-    st.session_state.num_questions = int(num_questions)
+    # Create two columns
+    col1, col2 = st.columns([3, 1])
 
-    question_index = st.session_state.question_index
-    questions_order = st.session_state.questions_order
-    correct_count = st.session_state.score
+    # Column 1: Quiz questions and settings
+    with col1:
+        num_questions = st.number_input("Enter the number of questions for this quiz:", min_value=1, max_value=len(questions), value=st.session_state.num_questions, step=1)
 
-    if question_index < st.session_state.num_questions:
-        question = questions[questions_order[question_index]]
-        selected_answer = display_question(question, question_index, correct_count)
+        # Max Questions button
+        if st.button("Max Questions"):
+            num_questions = len(questions)  # Set to the maximum number of questions
 
-        if st.button("Submit"):
-            if selected_answer:
-                is_correct = check_answer(question, selected_answer)
-                if is_correct:
-                    st.success("Correct!")
-                    st.session_state.score += 1
-                    st.session_state.results.append({"question": question["question"], "correct": True, "correct_answer": question["correct_answer"], "selected_answer": selected_answer})
+        st.session_state.num_questions = int(num_questions)
+
+        question_index = st.session_state.question_index
+        questions_order = st.session_state.questions_order
+        correct_count = st.session_state.score
+
+        if question_index < st.session_state.num_questions:
+            question = questions[questions_order[question_index]]
+            selected_answer = display_question(question, question_index, correct_count)
+
+            if st.button("Submit"):
+                if selected_answer:
+                    is_correct = check_answer(question, selected_answer)
+                    if is_correct:
+                        st.success("Correct!")
+                        st.session_state.score += 1
+                        st.session_state.results.append({"question": question["question"], "correct": True, "correct_answer": question["correct_answer"], "selected_answer": selected_answer})
+                    else:
+                        st.error(f"Incorrect. The correct answer was: {question['correct_answer']}")
+                        st.session_state.results.append({"question": question["question"], "correct": False, "correct_answer": question["correct_answer"], "selected_answer": selected_answer})
+
+                    st.session_state.question_index += 1
+                    st.rerun()  # Rerun to display the next question
                 else:
-                    st.error(f"Incorrect. The correct answer was: {question['correct_answer']}")
-                    st.session_state.results.append({"question": question["question"], "correct": False, "correct_answer": question["correct_answer"], "selected_answer": selected_answer})
+                    st.warning("Please select an answer.")
+        else:
+            st.header("Quiz Complete!")
+            st.write(f"Your final score: {st.session_state.score} / {st.session_state.num_questions}")
 
-                st.session_state.question_index += 1
-                st.rerun()  # Rerun to display the next question
-            else:
-                st.warning("Please select an answer.")
-    else:
-        st.header("Quiz Complete!")
-        st.write(f"Your final score: {st.session_state.score} / {st.session_state.num_questions}")
+            # Display Summary
+            st.subheader("Review")
+            for result in st.session_state.results:
+                st.write(f"**Question:** {result['question']}")
+                st.write(f"  * Your Answer: {result['selected_answer']}")
+                st.write(f"  * Correct Answer: {result['correct_answer']}")
+                if result['correct']:
+                    st.success("   * Correct!")
+                else:
+                    st.error("   * Incorrect")
 
-        # Display Summary
-        st.subheader("Review")
-        for result in st.session_state.results:
-            st.write(f"**Question:** {result['question']}")
-            st.write(f"  * Your Answer: {result['selected_answer']}")
-            st.write(f"  * Correct Answer: {result['correct_answer']}")
-            if result['correct']:
-                st.success("   * Correct!")
-            else:
-                st.error("   * Incorrect")
+            if st.button("Restart Quiz"):
+                st.session_state.question_index = 0
+                st.session_state.score = 0
+                st.session_state.questions_order = list(range(len(questions)))
+                random.shuffle(st.session_state.questions_order)
+                st.session_state.results = [] #Clears the results
+                st.rerun()
 
-        if st.button("Restart Quiz"):
-            st.session_state.question_index = 0
-            st.session_state.score = 0
-            st.session_state.questions_order = list(range(len(questions)))
-            random.shuffle(st.session_state.questions_order)
-            st.session_state.results = [] #Clears the results
-            st.rerun()
+    # Column 2: PDF content in a scrollable format
+    with col2:
+        st.header("Course Content")
+        # Read the PDF file
+        try:
+            with open("cours.pdf", "rb") as file:
+                pdf_data = file.read()
+                pdf_base64 = base64.b64encode(pdf_data).decode("utf-8")
+                pdf_display = f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="400" height="800" style="overflow: auto;"></iframe>'
+                st.markdown(pdf_display, unsafe_allow_html=True)
+        except FileNotFoundError:
+            st.error("The 'cours.pdf' file was not found.  Please make sure it is in the same directory as the script.")
 
 if __name__ == "__main__":
     main()
