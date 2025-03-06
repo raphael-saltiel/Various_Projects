@@ -392,6 +392,76 @@ questions = [
         "correct_answer": "`SET`"
     },
     {
+        "question": "What is the result of the following MongoDB query? `db.products.insertMany([{id: 10, item: 'large box', qty: 20}, {id: 11, item: 'small box', qty: 55}, {id: 12, item: 'medium box', qty: 30}])`",
+        "options": [
+            "{ 'acknowledged': true, 'insertedIds': [ObjectId('612497c67c058c794cbf5482'), ObjectId('614497c67c058c794cbf5483'), 12] }",
+            "{ 'acknowledged': true, 'insertedIds': [10, 11, 12] }",
+            "{ 'acknowledged': true, 'insertedIds': [ObjectId('612497c67c058c794cbf5482'), ObjectId('612497c67c058c794cbf5483'), ObjectId('61a497c67c058c794cbf5484')] }",
+            "{ 'acknowledged': true, 'insertedIds': [10, 11, ObjectId('614497c67c058c794cbf5484')] }"
+        ],
+        "correct_answer": "{ 'acknowledged': true, 'insertedIds': [ObjectId('612497c67c058c794cbf5482'), ObjectId('614497c67c058c794cbf5483'), 12] }"
+    },
+    {
+        "question": "Which MongoDB aggregation query correctly joins documents from 'orders' with those from 'inventory'?",
+        "options": [
+            """db.orders.aggregate([ { $lookup: { to: 'inventory', localField: 'sku', primaryField: 'item', as: 'inventory_docs' } } ])""",
+            """db.orders.aggregate([ { $lookup: { to: 'inventory', localField: 'item', primaryField: 'sku', as: 'inventory_docs' } } ])""",
+            """db.orders.aggregate([ { $lookup: { from: 'inventory', localField: 'sku', foreignField: 'item', as: 'inventory_docs' } } ])""",
+            """db.orders.aggregate([ { $lookup: { from: 'inventory', localField: 'item', foreignField: 'sku', as: 'inventory_docs' } } ])"""
+        ],
+        "correct_answer": """db.orders.aggregate([ { $lookup: { from: 'inventory', localField: 'item', foreignField: 'sku', as: 'inventory_docs' } } ])"""
+    },
+    {
+        "question": "Which MongoDB deleteOne() method statement is correct?",
+        "options": [
+            "Allows you to delete a single document",
+            "Returns an error if the specified filter does not match any documents",
+            "Can be used to delete all documents in a collection",
+            "Returns a document (result object)"
+        ],
+        "correct_answer": "Allows you to delete a single document"
+    },
+    {
+        "question": "Which MongoDB query is equivalent to `SELECT * FROM inventory WHERE status = 'A' AND qty < 30`?",
+        "options": [
+            "db.inventory.find({ status: 'A', qty: { $lt: 30 } })",
+            "db.inventory.find({ { status: 'A' } & { qty: { $lt: 30 } } })",
+            "db.inventory.find({ $and: [ { status: 'A' }, { qty: { $lt: 30 } } ] })",
+            "db.inventory.find({ { status: 'A' } / { qty: { $lt: 30 } } })"
+        ],
+        "correct_answer": "db.inventory.find({ $and: [ { status: 'A' }, { qty: { $lt: 30 } } ] })"
+    },
+    {
+        "question": "Which MongoDB aggregation query is equivalent to `SELECT cust_id, SUM(li.qty) AS qty FROM orders o, order_lineitem li WHERE li.order_id = o.id GROUP BY cust_id`?",
+        "options": [
+            "db.orders.aggregate([{ $unwind: '$items' }, { $group: { _id: '$cust_id', qty: { $sum: '$items.qty' } } } ])",
+            "db.orders.aggregate([{ $slice: '$items' }, { $group: { _id: '$cust_id', qty: { $sum: '$items.qty' } } } ])",
+            "db.orders.aggregate([{ $unwind: '$items' }, { $group: { _id: 'cust_id', qty: { $sum: '$items.qty' } } } ])",
+            "db.orders.aggregate([{ $slice: '$items' }, { $group: { _id: 'cust_id', qty: { $sum: '$items.qty' } } } ])"
+        ],
+        "correct_answer": "db.orders.aggregate([{ $unwind: '$items' }, { $group: { _id: '$cust_id', qty: { $sum: '$items.qty' } } } ])"
+    },
+    {
+        "question": "Which operators below can be used in an updateMany() operation?",
+        "options": [
+            "$set",
+            "$lookup",
+            "$unionWith",
+            "$unset"
+        ],
+        "correct_answer": "$set"
+    },
+    {
+        "question": "Which MongoDB query would return a single document with `_id: 10, bar: 'abc'` if it exists?",
+        "options": [
+            "insertOne({ foo: 'abc' })",
+            "insertOne({ _id: 10, bar: 'abc' })",
+            "insertOne({ _id: 20, foo: 'abc' })",
+            "insertOne({ bar: 'abc' })"
+        ],
+        "correct_answer": "insertOne({ bar: 'abc' })"
+    },
+    {
         "question": "What is the role of the aggregation pipeline?",
         "options": ["`Optimize queries`", "`Validate data integrity`", "`Transform and aggregate data`", "`Manage indexes`"],
         "correct_answer": "`Transform and aggregate data`"
