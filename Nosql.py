@@ -3,6 +3,7 @@ import random
 import base64
 
 # Define your questions and answers
+
 questions = [
     {
         "question": "Which data model is best suited for scenarios where related data is frequently accessed together and requires faster reads?",
@@ -360,6 +361,86 @@ questions = [
         "options": ["`$filter`", "`$slice`", "`$range`", "`$limit`"],
         "correct_answer": "`$slice`"
     },
+    {
+        "question": "Regarding uniqueness, what is the correct Cypher statement to create an uniqueness constrait",
+        "options": ["`CREATE CONSTRAINT IF NOT EXISTS FOR (n:Person) REQUIRE n.email IS UNIQUE`", "`CREATE CONSTRAINT IF NOT EXISTS FOR (n:Person) ASSERT n.email IS UNIQUE`", "`CREATE CONSTRAINT FOR (n:Person) REQUIRE n.email IS UNIQUE`", "`CREATE UNIQUE IF NOT EXISTS FOR (n:Person) REQUIRE n.email IS UNIQUE`"],
+        "correct_answer": "`CREATE CONSTRAINT IF NOT EXISTS FOR (n:Person) REQUIRE n.email IS UNIQUE`"
+    },
+    {
+        "question": "In MongoDB, what statement would you use to insert many elements?",
+        "options": ["`insertAll`", "`insert`", "`insertMany`", "`insert_many`"],
+        "correct_answer": "`insertMany`"
+    },
+    {
+        "question": "In Neo4j, what would be the appropriate statement to verify existing and creating it if doesn't exist",
+        "options": ["`CREATE`", "`INSERT`", "`MERGE`", "`CHECK`"],
+        "correct_answer": "`MERGE`"
+    },
+    {
+        "question": "You are using the aggregate, which statement would select the field `city`",
+        "options": ["`match`", "`select`", "`group`", "`where`"],
+        "correct_answer": "`match`"
+    },
+    {
+        "question": "Which is not a step to import a `CSV` file",
+        "options": ["`LOAD CSV WITH HEADERS FROM 'file:///path/to/mydata.csv' AS row`", "`MERGE (p:Person { id: row.personId, name: row.name })`", "`CREATE (p:Person { id: row.personId, name: row.name })`", "`(line in lines)`"],
+        "correct_answer": "`(line in lines)`"
+    },
+    {
+        "question": "Which statement can be used to update a field",
+        "options": ["`WHERE`", "`MODIFY`", "`SET`", "`ALTER`"],
+        "correct_answer": "`SET`"
+    },
+    {
+        "question": "What is the role of the aggregation pipeline?",
+        "options": ["`Optimize queries`", "`Validate data integrity`", "`Transform and aggregate data`", "`Manage indexes`"],
+        "correct_answer": "`Transform and aggregate data`"
+    },
+    {
+        "question": "What statement could validate if a given field exists, for exemple `email`",
+        "options": ["`$TYPE`", "`$CHECK`", "`$EXISTS`", "`$VALIDATE`"],
+        "correct_answer": "`$EXISTS`"
+    },
+    {
+        "question": "You are using the function `db.collection.find({city:{$in:['Paris','London']}})`, what could be a good alternative to `$IN`",
+        "options": ["`$AND`", "`$SIZE`", "`$EQ`", "`$OR`"],
+        "correct_answer": "`$OR`"
+    },
+    {
+        "question": "You use `{{$group:{{_id:'$city', total_population:{{$sum:'$population'}}}}}}`, what can you say?",
+        "options": ["`Returns the size for each city`", "`Returns all the document`", "`Returns the city and population`", "`Returns an error`"],
+        "correct_answer": "`Returns an error`"
+    },
+    {
+        "question": "Which function permit to join 2 collections?",
+        "options": ["`$JOIN`", "`$LINK`", "`$LOOKUP`", "`$RELATION`"],
+        "correct_answer": "`$LOOKUP`"
+    },
+    {
+        "question": "In MongoDB, what would be the correct code to find all documents where the 'status' field is equal to 'active'?",
+        "options": ["`db.collection.find({ status: 'active' })`", "`db.collection.select({ status: 'active' })`", "`db.collection.query({ status: 'active' })`", "`db.collection.get({ status: 'active' })`"],
+        "correct_answer": "`db.collection.find({ status: 'active' })`"
+    },
+    {
+        "question": "In Neo4j, what Cypher code snippet would you use to find all nodes related to a node named 'John'?",
+        "options": ["`FIND (john:Person {name: 'John'})-->(related)`", "`MATCH (john:Person {name: 'John'})-->(related) RETURN related`", "`SEARCH (john:Person {name: 'John'})-->(related)`", "`SELECT related FROM (john:Person {name: 'John'})`"],
+        "correct_answer": "`MATCH (john:Person {name: 'John'})-->(related) RETURN related`"
+    },
+    {
+        "question": "Suppose you have a MongoDB document with an array called 'tags'. Which code snippet would add the value 'featured' to the 'tags' array if it's not already present?",
+        "options": ["`db.collection.update({_id: docId}, {$push: {tags: 'featured'}})`", "`db.collection.update({_id: docId}, {$addToSet: {tags: 'featured'}})`", "`db.collection.update({_id: docId}, {$add: {tags: 'featured'}})`", "`db.collection.update({_id: docId}, {$set: {tags: 'featured'}})`"],
+        "correct_answer": "`db.collection.update({_id: docId}, {$addToSet: {tags: 'featured'}})`"
+    },
+    {
+        "question": "In Cypher, what's wrong about the statement `CREATE INDEX ON:Movie(title);`",
+        "options": ["The Movie is a property, not a Node", "There's no wrong, the code is correct", "The Syntax is not correct", "There's no need for an index"],
+        "correct_answer": "The Syntax is not correct"
+    },
+    {
+        "question": "What is wrong about the query `db.movies.update({name:{$exists:true}},{$set:{name:'a'}},{multi:true});`",
+        "options": ["`multi` is not a valid flag, it should be all", "Nothing is wrong", "It should be `multi:True`", "It should be `multiple:true`"],
+        "correct_answer": "It should be `multi:True`"
+    },
 ]
 
 def check_answer(question, selected_answer):
@@ -409,59 +490,59 @@ def main():
     # Main area for the quiz
     col1, col2 = st.columns([3, 1]) #Adjust columns width
     with col1:
-      num_questions = st.number_input("Enter the number of questions for this quiz:", min_value=1, max_value=len(questions), value=st.session_state.num_questions, step=1)
+        num_questions = st.number_input("Enter the number of questions for this quiz:", min_value=1, max_value=len(questions), value=st.session_state.num_questions, step=1)
 
-      # Max Questions button
-      if st.button("Max Questions"):
-          num_questions = len(questions)  # Set to the maximum number of questions
+        # Max Questions button
+        if st.button("Max Questions"):
+            num_questions = len(questions)  # Set to the maximum number of questions
 
-      st.session_state.num_questions = int(num_questions)
+        st.session_state.num_questions = int(num_questions)
 
-      question_index = st.session_state.question_index
-      questions_order = st.session_state.questions_order
-      correct_count = st.session_state.score
+        question_index = st.session_state.question_index
+        questions_order = st.session_state.questions_order
+        correct_count = st.session_state.score
 
-      if question_index < st.session_state.num_questions:
-          question = questions[questions_order[question_index]]
-          selected_answer = display_question(question, question_index, correct_count)
+        if question_index < st.session_state.num_questions:
+            question = questions[questions_order[question_index]]
+            selected_answer = display_question(question, question_index, correct_count)
 
-          if st.button("Submit"):
-              if selected_answer:
-                  is_correct = check_answer(question, selected_answer)
-                  if is_correct:
-                      st.success("Correct!")
-                      st.session_state.score += 1
-                      st.session_state.results.append({"question": question["question"], "correct": True, "correct_answer": question["correct_answer"], "selected_answer": selected_answer})
-                  else:
-                      st.error(f"Incorrect. The correct answer was: {question['correct_answer']}")
-                      st.session_state.results.append({"question": question["question"], "correct": False, "correct_answer": question["correct_answer"], "selected_answer": selected_answer})
+            if st.button("Submit"):
+                if selected_answer:
+                    is_correct = check_answer(question, selected_answer)
+                    if is_correct:
+                        st.success("Correct!")
+                        st.session_state.score += 1
+                        st.session_state.results.append({"question": question["question"], "correct": True, "correct_answer": question["correct_answer"], "selected_answer": selected_answer})
+                    else:
+                        st.error(f"Incorrect. The correct answer was: {question['correct_answer']}")
+                        st.session_state.results.append({"question": question["question"], "correct": False, "correct_answer": question["correct_answer"], "selected_answer": selected_answer})
 
-                  st.session_state.question_index += 1
-                  st.rerun()  # Rerun to display the next question
-              else:
-                  st.warning("Please select an answer.")
-      else:
-          st.header("Quiz Complete!")
-          st.write(f"Your final score: {st.session_state.score} / {st.session_state.num_questions}")
+                    st.session_state.question_index += 1
+                    st.rerun()  # Rerun to display the next question
+                else:
+                    st.warning("Please select an answer.")
+        else:
+            st.header("Quiz Complete!")
+            st.write(f"Your final score: {st.session_state.score} / {st.session_state.num_questions}")
 
-          # Display Summary
-          st.subheader("Review")
-          for result in st.session_state.results:
-              st.write(f"**Question:** {result['question']}")
-              st.write(f"  * Your Answer: {result['selected_answer']}")
-              st.write(f"  * Correct Answer: {result['correct_answer']}")
-              if result['correct']:
-                  st.success("   * Correct!")
-              else:
-                  st.error("   * Incorrect")
+            # Display Summary
+            st.subheader("Review")
+            for result in st.session_state.results:
+                st.write(f"**Question:** {result['question']}")
+                st.write(f"  * Your Answer: {result['selected_answer']}")
+                st.write(f"  * Correct Answer: {result['correct_answer']}")
+                if result['correct']:
+                    st.success("   * Correct!")
+                else:
+                    st.error("   * Incorrect")
 
-          if st.button("Restart Quiz"):
-              st.session_state.question_index = 0
-              st.session_state.score = 0
-              st.session_state.questions_order = list(range(len(questions)))
-              random.shuffle(st.session_state.questions_order)
-              st.session_state.results = [] #Clears the results
-              st.rerun()
+            if st.button("Restart Quiz"):
+                st.session_state.question_index = 0
+                st.session_state.score = 0
+                st.session_state.questions_order = list(range(len(questions)))
+                random.shuffle(st.session_state.questions_order)
+                st.session_state.results = [] #Clears the results
+                st.rerun()
 
 if __name__ == "__main__":
     main()
